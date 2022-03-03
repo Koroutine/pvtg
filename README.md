@@ -1,5 +1,12 @@
 # pvtg
 
+## Install
+
+1. Go get the latest release: https://github.com/Koroutine/pvtg/releases/latest
+2. Get a Pivotal Tracker token (at the bottom): https://www.pivotaltracker.com/profile
+3. Login `pvtg login <token>`
+4. Enjoy!
+
 ```
 Supports a Git development flow centered around Pivotal Tracker
 
