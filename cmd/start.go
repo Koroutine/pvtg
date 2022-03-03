@@ -29,13 +29,12 @@ func CheckIfError(err error) {
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Start a story",
+	Long: `Select a Pivotal Tracker story to start
+	
+This will create and checkout a git branch named '<story-id>_<story-name>'.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Branch name is limited to 255 characters`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -89,9 +88,10 @@ to quickly create a Cobra application.`,
 		story = stories[i]
 
 		name := story.Name
+		maxLength := 255 - len(fmt.Sprint(story.ID))
 
-		if len(name) > 255 {
-			name = story.Name[0:254]
+		if len(name) > (maxLength) {
+			name = story.Name[0 : maxLength-1]
 		}
 
 		branchName := fmt.Sprintf("%v_%s", story.ID, strcase.ToSnake(name))

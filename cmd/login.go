@@ -17,14 +17,9 @@ import (
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
 	Use:   "login [token]",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Args: cobra.ExactArgs(1),
+	Short: "Save Pivotal Tracker token",
+	Long:  `This will save the Pivotal Tracker token to the local config file at '~/.pvtg.yaml'`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		viper.Set("token", args[0])
