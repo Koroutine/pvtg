@@ -34,6 +34,11 @@ const (
 	StoryFeature StoryType = "feature"
 )
 
+type Me struct {
+	ID       int    `json:"id,omitempty"`
+	Username string `json:"username,omitempty"`
+}
+
 type Project struct {
 	ID   int            `json:"id,omitempty"`
 	Name string         `json:"name,omitempty"`
@@ -66,6 +71,32 @@ func NewPivotalClient(token string) *PivotalClient {
 		client,
 		token,
 	}
+}
+
+func (pt *PivotalClient) Me() (Me, error) {
+	req, err := http.NewRequest(http.MethodGet, "https://www.pivotaltracker.com/services/v5/me", http.NoBody)
+
+	if err != nil {
+		return Me{}, err
+	}
+
+	req.Header.Set("X-TrackerToken", pt.token)
+
+	res, err := pt.client.Do(req)
+
+	if err != nil {
+		return Me{}, err
+	}
+
+	var me Me
+
+	err = json.NewDecoder(res.Body).Decode(&me)
+
+	if err != nil {
+		return Me{}, err
+	}
+
+	return me, nil
 }
 
 func (pt *PivotalClient) GetProjects() ([]Project, error) {
@@ -189,12 +220,13 @@ func (project *Project) GetStoriesTBD() ([]Story, error) {
 	return stories, nil
 }
 
-func (story *Story) SetState(state StoryState) (Story, error) {
+func (story *Story) Save() (Story, error) {
 
 	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/projects/%v/stories/%v", story.ProjectID, story.ID)
 
 	body, err := json.Marshal(Story{
-		State: state,
+		State:  story.State,
+		Owners: story.Owners,
 	})
 
 	if err != nil {

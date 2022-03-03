@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/koroutine/pvtg/pivotal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -42,6 +43,11 @@ var loginCmd = &cobra.Command{
 		CheckIfError(err)
 
 		fmt.Println("Logged In")
+
+		client := pivotal.NewPivotalClient(args[0])
+
+		client.Me()
+
 	},
 }
 

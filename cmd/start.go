@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -42,6 +43,10 @@ Branch name is limited to 255 characters`,
 		var story pivotal.Story
 
 		client := pivotal.NewPivotalClient(pivotalToken)
+
+		me, err := client.Me()
+
+		CheckIfError(err)
 
 		projects, err := client.GetProjects()
 
@@ -111,9 +116,10 @@ Branch name is limited to 255 characters`,
 		err = w.Checkout(&git.CheckoutOptions{
 			Create: true,
 			Branch: plumbing.ReferenceName(plumbing.NewBranchReferenceName(branchName)),
+			Keep:   true,
 		})
 
-		if errors.Is(err, git.ErrBranchExists) {
+		if errors.Is(err, git.ErrBranchExists) || strings.Contains(err.Error(), "already exists") {
 			fmt.Printf("Branch '%s' already exists, good to go!\n", branchName)
 		} else {
 			CheckIfError(err)
@@ -121,11 +127,13 @@ Branch name is limited to 255 characters`,
 
 		fmt.Println("Switch to branch", branchName)
 
-		story, err = story.SetState(pivotal.StoryStarted)
+		story.State = pivotal.StoryStarted
+		story.Owners = append(story.Owners, me.ID)
+		story, err = story.Save()
 
 		CheckIfError(err)
 
-		fmt.Println("Started story", story)
+		fmt.Println("Started story", story.Name)
 
 	},
 }
