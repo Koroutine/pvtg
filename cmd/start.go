@@ -14,7 +14,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/iancoleman/strcase"
 	"github.com/koroutine/pvtg/pivotal"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
 
@@ -36,61 +35,20 @@ var startCmd = &cobra.Command{
 This will create and checkout a git branch named '<story-id>_<story-name>'.
 
 Branch name is limited to 255 characters`,
-
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var project pivotal.Project
-		var story pivotal.Story
-
 		client := pivotal.NewPivotalClient(pivotalToken)
+		path := cmd.Flag("dir").Value.String()
+		label := cmd.Flag("label").Value.String()
+		projectName := cmd.Flag("project").Value.String()
 
 		me, err := client.Me()
 
 		CheckIfError(err)
 
-		projects, err := client.GetProjects()
+		story, _, err := client.SelectStoryTBD(projectName, label)
 
 		CheckIfError(err)
-
-		templates := &promptui.SelectTemplates{
-			Active:   "• {{ .Name | green }}",
-			Inactive: "  {{ .Name | cyan }}",
-			Selected: "  {{ .Name | green }}",
-		}
-
-		prompt := promptui.Select{
-			Label:     "Select Project",
-			Items:     projects,
-			Templates: templates,
-		}
-
-		i, _, err := prompt.Run()
-
-		CheckIfError(err)
-
-		project = projects[i]
-
-		stories, err := project.GetStoriesTBD()
-
-		CheckIfError(err)
-
-		templates = &promptui.SelectTemplates{
-			Active:   "• {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
-			Inactive: "  {{ .TypeIcon }} - {{ .Name | cyan }} ({{.Priority }})",
-			Selected: "  {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
-		}
-
-		prompt = promptui.Select{
-			Label:     "Select Story",
-			Items:     stories,
-			Templates: templates,
-		}
-
-		i, _, err = prompt.Run()
-
-		CheckIfError(err)
-
-		story = stories[i]
 
 		name := story.Name
 		maxLength := 255 - len(fmt.Sprint(story.ID))
@@ -100,8 +58,6 @@ Branch name is limited to 255 characters`,
 		}
 
 		branchName := fmt.Sprintf("%v_%s", story.ID, strcase.ToSnake(name))
-
-		path := cmd.Flag("path").Value.String()
 
 		fmt.Println("Opening repo at", path)
 
@@ -141,5 +97,7 @@ Branch name is limited to 255 characters`,
 func init() {
 	rootCmd.AddCommand(startCmd)
 
-	startCmd.Flags().StringP("path", "p", "", "Path to git repository")
+	startCmd.Flags().StringP("dir", "d", "", "Directory with git repository")
+	startCmd.Flags().StringP("label", "l", "", "Filter stories by label")
+	startCmd.Flags().StringP("project", "p", "", "Name of project")
 }

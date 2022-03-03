@@ -135,7 +135,7 @@ func (pt *PivotalClient) GetProjects() ([]Project, error) {
 	return projects, nil
 }
 
-func (project *Project) GetStories(state StoryState) ([]Story, error) {
+func (project *Project) GetStories(state StoryState, label string) ([]Story, error) {
 	url, err := url.Parse(fmt.Sprintf("https://www.pivotaltracker.com/services/v5/projects/%v/stories", project.ID))
 
 	if err != nil {
@@ -146,6 +146,9 @@ func (project *Project) GetStories(state StoryState) ([]Story, error) {
 
 	if state != StoryAll {
 		values.Set("with_state", string(state))
+	}
+	if label != "" {
+		values.Set("with_label", label)
 	}
 
 	url.RawQuery = values.Encode()
@@ -207,7 +210,7 @@ func (project *Project) GetStories(state StoryState) ([]Story, error) {
 
 }
 
-func (project *Project) GetStoriesTBD() ([]Story, error) {
+func (project *Project) GetStoriesTBD(label string) ([]Story, error) {
 	states := []StoryState{
 		StoryUnstarted,
 		StoryRejected,
@@ -216,7 +219,7 @@ func (project *Project) GetStoriesTBD() ([]Story, error) {
 	stories := make([]Story, 0)
 
 	for _, state := range states {
-		data, err := project.GetStories(state)
+		data, err := project.GetStories(state, label)
 
 		if err != nil {
 			return nil, err
