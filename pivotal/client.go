@@ -50,6 +50,7 @@ type Story struct {
 	Name        string         `json:"name,omitempty"`
 	Description string         `json:"description,omitempty"`
 	Type        StoryType      `json:"story_type,omitempty"`
+	TypeIcon    string         `json:"-"`
 	State       StoryState     `json:"current_state,omitempty"`
 	Owners      []int          `json:"owner_ids,omitempty"`
 	Priority    string         `json:"story_priority,omitempty"`
@@ -189,6 +190,17 @@ func (project *Project) GetStories(state StoryState) ([]Story, error) {
 	for i := range stories {
 		stories[i].pt = project.pt
 		stories[i].ProjectID = project.ID
+
+		switch stories[i].Type {
+		case StoryFeature:
+			stories[i].TypeIcon = "⭐"
+		case StoryBug:
+			stories[i].TypeIcon = "🐛"
+		case StoryChore:
+			stories[i].TypeIcon = "🍩"
+		case StoryRelease:
+			stories[i].TypeIcon = "🏁"
+		}
 	}
 
 	return stories, nil

@@ -75,9 +75,9 @@ Branch name is limited to 255 characters`,
 		CheckIfError(err)
 
 		templates = &promptui.SelectTemplates{
-			Active:   "• {{ .Type }} - {{ .Name | green }} ({{.Priority }})",
-			Inactive: "  {{ .Type }} - {{ .Name  | cyan }} ({{.Priority }})",
-			Selected: "  {{ .Type }} - {{ .Name | green }} ({{.Priority }})",
+			Active:   "• {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
+			Inactive: "  {{ .TypeIcon }} - {{ .Name | cyan }} ({{.Priority }})",
+			Selected: "  {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
 		}
 
 		prompt = promptui.Select{
