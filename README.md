@@ -1,5 +1,9 @@
 # pvtg
 
+Supports a Git development flow centered around Pivotal Tracker
+
+Allows you to find, start and complete tasks without leaving the comfort of your terminal
+
 ## Install
 
 1. Go get the latest release: https://github.com/Koroutine/pvtg/releases/latest
@@ -7,11 +11,9 @@
 3. Login `pvtg login <token>`
 4. Enjoy!
 
+## Usage
+
 ```
-Supports a Git development flow centered around Pivotal Tracker
-
-Allows you to find, start and complete tasks without leaving the comfort of your terminal
-
 Usage:
   pvtg [command]
 
