@@ -6,15 +6,13 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func (pt *PivotalClient) SelectStoryTBD(projectName string, label string) (Story, Project, error) {
-
-	var story Story
+func (pt *PivotalClient) SelectProject(name string) (Project, error) {
 	var project Project
 
 	projects, err := pt.GetProjects()
 
 	if err != nil {
-		return Story{}, Project{}, err
+		return project, err
 	}
 
 	templates := &promptui.SelectTemplates{
@@ -23,17 +21,17 @@ func (pt *PivotalClient) SelectStoryTBD(projectName string, label string) (Story
 		Selected: "  {{ .Name | green }}",
 	}
 
-	if projectName != "" {
+	if name != "" {
 
 		for _, p := range projects {
-			if p.Name == projectName {
+			if p.Name == name {
 				project = p
 				break
 			}
 		}
 
 		if project.ID == 0 {
-			return Story{}, Project{}, fmt.Errorf("project '%s' not found", projectName)
+			return project, fmt.Errorf("project '%s' not found", name)
 		}
 
 	} else {
@@ -46,23 +44,30 @@ func (pt *PivotalClient) SelectStoryTBD(projectName string, label string) (Story
 		i, _, err := prompt.Run()
 
 		if err != nil {
-			return Story{}, Project{}, err
+			return project, err
 		}
 
 		project = projects[i]
 	}
 
+	return project, nil
+}
+
+func (project *Project) SelectStoryTBD(label string) (Story, error) {
+
+	var story Story
+
 	stories, err := project.GetStoriesTBD(label)
 
 	if err != nil {
-		return Story{}, Project{}, err
+		return story, err
 	}
 
 	if len(stories) == 0 {
-		return Story{}, Project{}, fmt.Errorf("no stories found")
+		return story, fmt.Errorf("no stories found")
 	}
 
-	templates = &promptui.SelectTemplates{
+	templates := &promptui.SelectTemplates{
 		Active:   "• {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
 		Inactive: "  {{ .TypeIcon }} - {{ .Name | cyan }} ({{.Priority }})",
 		Selected: "  {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
@@ -77,10 +82,10 @@ func (pt *PivotalClient) SelectStoryTBD(projectName string, label string) (Story
 	i, _, err := prompt.Run()
 
 	if err != nil {
-		return Story{}, Project{}, err
+		return story, err
 	}
 
 	story = stories[i]
 
-	return story, project, nil
+	return story, nil
 }

@@ -14,6 +14,7 @@ import (
 var (
 	pivotalToken string
 	cfgFile      string
+	dir          string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -37,6 +38,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pvtg.yaml)")
+	rootCmd.PersistentFlags().StringVar(&dir, "dir", "", "Target directory")
 }
 
 func initConfig() {

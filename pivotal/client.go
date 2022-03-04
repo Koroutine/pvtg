@@ -135,6 +135,29 @@ func (pt *PivotalClient) GetProjects() ([]Project, error) {
 	return projects, nil
 }
 
+func (pt *PivotalClient) GetProjectByName(name string) (Project, error) {
+
+	var project Project
+	projects, err := pt.GetProjects()
+
+	if err != nil {
+		return project, err
+	}
+
+	for _, p := range projects {
+		if p.Name == name {
+			project = p
+			break
+		}
+	}
+
+	if project.ID == 0 {
+		return project, fmt.Errorf("project '%s' not found", name)
+	}
+
+	return project, nil
+}
+
 func (project *Project) GetStories(state StoryState, label string) ([]Story, error) {
 	url, err := url.Parse(fmt.Sprintf("https://www.pivotaltracker.com/services/v5/projects/%v/stories", project.ID))
 
@@ -208,6 +231,48 @@ func (project *Project) GetStories(state StoryState, label string) ([]Story, err
 
 	return stories, nil
 
+}
+
+func (project *Project) GetStory(id int) (Story, error) {
+
+	var story Story
+
+	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/projects/%v/stories/%v", project.ID, id)
+	req, err := http.NewRequest(http.MethodGet, url, http.NoBody)
+
+	if err != nil {
+		return story, err
+	}
+
+	req.Header.Set("X-TrackerToken", project.pt.token)
+
+	res, err := project.pt.client.Do(req)
+
+	if err != nil {
+		return story, err
+	}
+
+	err = json.NewDecoder(res.Body).Decode(&story)
+
+	if err != nil {
+		return story, err
+	}
+
+	story.pt = project.pt
+	story.ProjectID = project.ID
+
+	switch story.Type {
+	case StoryFeature:
+		story.TypeIcon = "⭐"
+	case StoryBug:
+		story.TypeIcon = "🐛"
+	case StoryChore:
+		story.TypeIcon = "🍩"
+	case StoryRelease:
+		story.TypeIcon = "🏁"
+	}
+
+	return story, nil
 }
 
 func (project *Project) GetStoriesTBD(label string) ([]Story, error) {
