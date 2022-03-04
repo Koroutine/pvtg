@@ -63,7 +63,7 @@ Branch name is limited to 255 characters`,
 			Keep:   true,
 		})
 
-		if errors.Is(err, git.ErrBranchExists) || strings.Contains(err.Error(), "already exists") {
+		if err != nil && (errors.Is(err, git.ErrBranchExists) || strings.Contains(err.Error(), "already exists")) {
 			fmt.Printf("Branch '%s' already exists, good to go!\n", branchName)
 		} else {
 			CheckIfError(err)
