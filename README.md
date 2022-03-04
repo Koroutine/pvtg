@@ -22,6 +22,7 @@ Available Commands:
   finish      Merge current branch and Finish story
   help        Help about any command
   login       Save Pivotal Tracker token
+  release     Tag a Release
   start       Start a story
 
 Flags:
