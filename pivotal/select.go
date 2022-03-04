@@ -89,3 +89,40 @@ func (project *Project) SelectStoryTBD(label string) (Story, error) {
 
 	return story, nil
 }
+
+func (project *Project) SelectReleases() (Story, error) {
+
+	var story Story
+
+	stories, err := project.GetReleases()
+
+	if err != nil {
+		return story, err
+	}
+
+	if len(stories) == 0 {
+		return story, fmt.Errorf("no releases found")
+	}
+
+	templates := &promptui.SelectTemplates{
+		Active:   "• {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
+		Inactive: "  {{ .TypeIcon }} - {{ .Name | cyan }} ({{.Priority }})",
+		Selected: "  {{ .TypeIcon }} - {{ .Name | green }} ({{.Priority }})",
+	}
+
+	prompt := promptui.Select{
+		Label:     "Select Release",
+		Items:     stories,
+		Templates: templates,
+	}
+
+	i, _, err := prompt.Run()
+
+	if err != nil {
+		return story, err
+	}
+
+	story = stories[i]
+
+	return story, nil
+}

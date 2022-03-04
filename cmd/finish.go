@@ -7,7 +7,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os/exec"
 	"regexp"
 	"strconv"
 
@@ -83,19 +82,14 @@ merge into 'dev' branch and finish the story`,
 		}
 
 		gitCmds := [][]string{
-			{"git", "merge", branchName},
-			{"git", "push"},
-			{"git", "branch", "-d", branchName},
-			{"git", "push", "origin", "--delete", branchName},
+			{"merge", branchName},
+			{"push"},
+			{"branch", "-d", branchName},
+			{"push", "origin", "--delete", branchName},
 		}
 
-		for _, c := range gitCmds {
-			// Pull changes from target branch
-			cmd := exec.Command(c[0], c[1:]...)
-			cmd.Dir = dir
-			err = cmd.Run()
-			CheckIfError(err)
-		}
+		err = RunGit(gitCmds)
+		CheckIfError(err)
 
 		// Update pivotal status
 		story.State = pivotal.StoryFinished

@@ -300,6 +300,25 @@ func (project *Project) GetStoriesTBD(label string) ([]Story, error) {
 	return stories, nil
 }
 
+func (project *Project) GetReleases() ([]Story, error) {
+
+	stories := make([]Story, 0)
+
+	data, err := project.GetStories(StoryUnstarted, "")
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, d := range data {
+		if d.Type == StoryRelease {
+			stories = append(stories, d)
+		}
+	}
+
+	return stories, nil
+}
+
 func (story *Story) Save() (Story, error) {
 
 	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/projects/%v/stories/%v", story.ProjectID, story.ID)
