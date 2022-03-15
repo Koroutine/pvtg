@@ -291,7 +291,14 @@ func (project *Project) GetStoriesTBD(label string) ([]Story, error) {
 		}
 
 		for _, d := range data {
-			if d.Type != StoryRelease && d.Estimate != 0 {
+
+			hasEstimate := d.Estimate != 0
+
+			if d.Type == StoryChore {
+				hasEstimate = true
+			}
+
+			if d.Type != StoryRelease && hasEstimate {
 				stories = append(stories, d)
 			}
 		}
