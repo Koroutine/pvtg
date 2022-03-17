@@ -5,12 +5,9 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/iancoleman/strcase"
 	"github.com/koroutine/pvtg/pivotal"
 	"github.com/spf13/cobra"
@@ -51,19 +48,14 @@ Branch name is limited to 255 characters`,
 		branchName := fmt.Sprintf("%v_%s", story.ID, strcase.ToSnake(name))
 
 		fmt.Println("Opening repo at", dir)
-		r, err := git.PlainOpen(dir)
-		CheckIfError(err)
 
-		w, err := r.Worktree()
-		CheckIfError(err)
+		gitCmds := [][]string{
+			{"checkout", "-b", branchName},
+		}
 
-		err = w.Checkout(&git.CheckoutOptions{
-			Create: true,
-			Branch: plumbing.ReferenceName(plumbing.NewBranchReferenceName(branchName)),
-			Keep:   true,
-		})
+		err = RunGit(gitCmds)
 
-		if err != nil && (errors.Is(err, git.ErrBranchExists) || strings.Contains(err.Error(), "already exists")) {
+		if err != nil && strings.Contains(err.Error(), "already exists") {
 			fmt.Printf("Branch '%s' already exists, good to go!\n", branchName)
 		} else {
 			CheckIfError(err)
