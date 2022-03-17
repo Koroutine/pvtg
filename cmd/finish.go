@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/bitfield/script"
 	"github.com/koroutine/pvtg/pivotal"
@@ -35,6 +36,8 @@ merge into 'dev' branch and finish the story`,
 		branchName, err := script.Exec("git rev-parse --abbrev-ref HEAD").String()
 		CheckIfError(err)
 
+		branchName = strings.TrimSpace(branchName)
+
 		if branchName == "HEAD" {
 			CheckIfError(errors.New("repository head is not on a branch"))
 		}
@@ -60,6 +63,8 @@ merge into 'dev' branch and finish the story`,
 			CheckIfError(fmt.Errorf("branch '%s' has uncommitted changes", branchName))
 		}
 
+		fmt.Println("Merging", branchName, "into dev")
+
 		gitCmds := [][]string{
 			{"checkout", "dev"},
 			{"merge", branchName},
@@ -72,7 +77,11 @@ merge into 'dev' branch and finish the story`,
 		CheckIfError(err)
 
 		// Update pivotal status
-		story.State = pivotal.StoryFinished
+		if story.Type == pivotal.StoryChore {
+			story.State = pivotal.StoryAccepted
+		} else {
+			story.State = pivotal.StoryFinished
+		}
 		_, err = story.Save()
 		CheckIfError(err)
 
