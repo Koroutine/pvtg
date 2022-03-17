@@ -258,6 +258,10 @@ func (project *Project) GetStory(id int) (Story, error) {
 		return story, err
 	}
 
+	if story.ID == 0 {
+		return story, fmt.Errorf("story not found, wrong project?: %v", id)
+	}
+
 	story.pt = project.pt
 	story.ProjectID = project.ID
 
