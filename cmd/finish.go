@@ -10,8 +10,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/bitfield/script"
 	"github.com/koroutine/pvtg/pivotal"
 	"github.com/spf13/cobra"
 )
@@ -31,23 +30,16 @@ merge into 'dev' branch and finish the story`,
 		project, err := client.SelectProject(projectName)
 		CheckIfError(err)
 
-		fmt.Println("Opening repo at", dir)
-		r, err := git.PlainOpen(dir)
+		fmt.Println("Using repo at", dir)
+
+		branchName, err := script.Exec("git rev-parse --abbrev-ref HEAD").String()
 		CheckIfError(err)
 
-		w, err := r.Worktree()
-		CheckIfError(err)
-
-		headRef, err := r.Head()
-		CheckIfError(err)
-
-		if !headRef.Name().IsBranch() {
+		if branchName == "HEAD" {
 			CheckIfError(errors.New("repository head is not on a branch"))
 		}
 
-		branchName := headRef.Name().Short()
 		re := regexp.MustCompile(`^(\d{9})_`)
-
 		result := re.FindStringSubmatch(branchName)
 
 		if len(result) != 2 {
@@ -61,27 +53,15 @@ merge into 'dev' branch and finish the story`,
 		CheckIfError(err)
 
 		// Get repo status
-		status, err := w.Status()
+		changes, err := script.Exec("git status --porcelain").String()
 		CheckIfError(err)
 
-		if !status.IsClean() {
+		if changes != "" {
 			CheckIfError(fmt.Errorf("branch '%s' has uncommitted changes", branchName))
 		}
 
-		// Checkout dev
-		err = w.Checkout(&git.CheckoutOptions{
-			Branch: plumbing.ReferenceName(plumbing.NewBranchReferenceName("dev")),
-			Force:  true,
-		})
-
-		if errors.Is(err, git.ErrBranchNotFound) {
-			CheckIfError(errors.New("dev branch not found"))
-			// TODO prompt to make dev branch
-		} else {
-			CheckIfError(err)
-		}
-
 		gitCmds := [][]string{
+			{"checkout", "dev"},
 			{"merge", branchName},
 			{"push"},
 			{"branch", "-d", branchName},
