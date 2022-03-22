@@ -47,7 +47,7 @@ Branch name is limited to 255 characters`,
 
 		branchName := fmt.Sprintf("%v_%s", story.ID, strcase.ToSnake(name))
 
-		fmt.Println("Opening repo at", dir)
+		fmt.Println("Using repo at", dir)
 
 		gitCmds := [][]string{
 			{"checkout", "-b", branchName},
