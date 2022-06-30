@@ -29,7 +29,6 @@ Branch name is limited to 255 characters`,
 		projectName := cmd.Flag("project").Value.String()
 
 		me, err := client.Me()
-
 		CheckIfError(err)
 
 		project, err := client.SelectProject(projectName)
