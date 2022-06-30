@@ -58,8 +58,7 @@ func initConfig() {
 
 	viper.AutomaticEnv()
 
-	err := viper.ReadInConfig()
-	cobra.CheckErr(err)
+	viper.ReadInConfig()
 
 	pivotalToken = viper.GetString("token")
 }
