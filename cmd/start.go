@@ -62,8 +62,22 @@ Branch name is limited to 255 characters`,
 
 		fmt.Println("Switch to branch", branchName)
 
+		owners := story.Owners
+		isOwner := false
+
+		for _, id := range owners {
+			if id == me.ID {
+				isOwner = true
+				break
+			}
+		}
+
+		if !isOwner {
+			owners = append(owners, me.ID)
+		}
+
 		story.State = pivotal.StoryStarted
-		story.Owners = append(story.Owners, me.ID)
+		story.Owners = owners
 		story, err = story.Save()
 
 		CheckIfError(err)
