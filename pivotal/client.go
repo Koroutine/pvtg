@@ -283,6 +283,7 @@ func (project *Project) GetStoriesTBD(label string) ([]Story, error) {
 	states := []StoryState{
 		StoryUnstarted,
 		StoryRejected,
+		StoryPlanned,
 	}
 
 	stories := make([]Story, 0)
